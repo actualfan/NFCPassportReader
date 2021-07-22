@@ -450,15 +450,19 @@ extension PassportReader {
                 // E.g. we failed to read the last Datagroup because its protected and we can't
                 let errMsg = err?.value ?? "Unknown  error"
                 Log.error( "ERROR - \(errMsg)" )
-                if errMsg == "Session invalidated" || errMsg == "Class not supported" || errMsg == "Tag connection lost"  {
-                    // Check if we have done Chip Authentication, if so, set it to nil and try to redo BAC
-                    if self.caHandler != nil {
-                        self.caHandler = nil
-                        completed(nil)
+                if errMsg == "Session invalidated" || errMsg == "Class not supported" || errMsg == "Tag connection lost" || errMsg == "sw1 - 0x6A, sw2 - 0x82" {
+                    if self.elementReadAttempts < 3 {
+                        self.readNextDataGroup(completedReadingGroups: completed)
                     } else {
-                        // Can't go any more!
-                        self.dataGroupsToRead.removeAll()
-                        completed( err )
+                        // Check if we have done Chip Authentication, if so, set it to nil and try to redo BAC
+                        if self.caHandler != nil {
+                            self.caHandler = nil
+                            completed(nil)
+                        } else {
+                            // Can't go any more!
+                            self.dataGroupsToRead.removeAll()
+                            completed( err )
+                        }
                     }
                 } else if errMsg == "Security status not satisfied" || errMsg == "File not found" {
                     // Can't read this element as we aren't allowed - remove it and return out so we re-do BAC
