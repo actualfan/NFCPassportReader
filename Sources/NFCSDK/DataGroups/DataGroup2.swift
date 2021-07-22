@@ -59,28 +59,24 @@ func getImage() -> UIImage? {
         }
         _ = try getNextLength()
         
-        // Tag should be 0x02
         tag = try getNextTag()
         if  tag != 0x02 {
             throw NFCSDKError.InvalidResponse
         }
         nrImages = try Int(getNextValue()[0])
         
-        // Next tag is 0x7F60
         tag = try getNextTag()
         if tag != 0x7F60 {
             throw NFCSDKError.InvalidResponse
         }
         _ = try getNextLength()
         
-        // Next tag is 0xA1 (Biometric Header Template) - don't care about this
         tag = try getNextTag()
         if tag != 0xA1 {
             throw NFCSDKError.InvalidResponse
         }
         _ = try getNextValue()
         
-        // Now we get to the good stuff - next tag is either 5F2E or 7F2E
         tag = try getNextTag()
         if tag != 0x5F2E && tag != 0x7F2E {
             throw NFCSDKError.InvalidResponse
@@ -91,7 +87,6 @@ func getImage() -> UIImage? {
     }
     
     func parseISO19794_5( data : [UInt8] ) throws {
-        // Validate header - 'F', 'A' 'C' 0x00 - 0x46414300
         if data[0] != 0x46 && data[1] != 0x41 && data[2] != 0x43 && data[3] != 0x00 {
             throw NFCSDKError.InvalidResponse
         }
@@ -123,9 +118,6 @@ func getImage() -> UIImage? {
         poseAngleUncertainty = binToInt(data[offset..<offset+3])
         offset += 3
         
-        // Features (not handled). There shouldn't be any but if for some reason there were,
-        // then we are going to skip over them
-        // The Feature block is 8 bytes
         offset += nrFeaturePoints * 8
         
         faceImageType = binToInt(data[offset..<offset+1])
@@ -145,9 +137,6 @@ func getImage() -> UIImage? {
         quality = binToInt(data[offset..<offset+2])
         offset += 2
         
-        
-        // Make sure that the image data at least has a valid header
-        // Either JPG or JPEG2000
         
         let jpegHeader : [UInt8] = [0xff,0xd8,0xff,0xe0,0x00,0x10,0x4a,0x46,0x49,0x46]
         let jpeg2000BitmapHeader : [UInt8] = [0x00,0x00,0x00,0x0c,0x6a,0x50,0x20,0x20,0x0d,0x0a]

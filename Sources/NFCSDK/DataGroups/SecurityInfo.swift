@@ -12,11 +12,9 @@ import OpenSSL
 public class SecurityInfo {
     static let ID_AA_OID = "2.23.136.1.1.5"
     
-    // Chip Authentication Public Key OIDS
     static let ID_PK_DH_OID = "0.4.0.127.0.7.2.2.1.1"
     static let ID_PK_ECDH_OID = "0.4.0.127.0.7.2.2.1.2"
     
-    // Chip Authentication OIDS
     static let ID_CA_DH_3DES_CBC_CBC_OID = "0.4.0.127.0.7.2.2.3.1.1"
     static let ID_CA_ECDH_3DES_CBC_CBC_OID = "0.4.0.127.0.7.2.2.3.2.1"
     static let ID_CA_DH_AES_CBC_CMAC_128_OID = "0.4.0.127.0.7.2.2.3.1.2"
@@ -27,37 +25,36 @@ public class SecurityInfo {
     static let ID_CA_ECDH_AES_CBC_CMAC_256_OID = "0.4.0.127.0.7.2.2.3.2.4"
     
 
-    // PACE OIDS
     static let ID_BSI = "0.4.0.127.0.7"
     static let ID_PACE = ID_BSI + ".2.2.4"
     static let ID_PACE_DH_GM = ID_PACE + ".1"
-    static let ID_PACE_DH_GM_3DES_CBC_CBC = ID_PACE_DH_GM + ".1"; // 0.4.0.127.0.7.2.2.4.1.1, id-PACE-DH-GM-3DES-CBC-CBC
-    static let ID_PACE_DH_GM_AES_CBC_CMAC_128 = ID_PACE_DH_GM + ".2"; // 0.4.0.127.0.7.2.2.4.1.2, id-PACE-DH-GM-AES-CBC-CMAC-128
-    static let ID_PACE_DH_GM_AES_CBC_CMAC_192 = ID_PACE_DH_GM + ".3"; // 0.4.0.127.0.7.2.2.4.1.3, id-PACE-DH-GM-AES-CBC-CMAC-192
-    static let ID_PACE_DH_GM_AES_CBC_CMAC_256 = ID_PACE_DH_GM + ".4"; // 0.4.0.127.0.7.2.2.4.1.4, id-PACE-DH-GM-AES-CBC-CMAC-256
+    static let ID_PACE_DH_GM_3DES_CBC_CBC = ID_PACE_DH_GM + ".1";
+    static let ID_PACE_DH_GM_AES_CBC_CMAC_128 = ID_PACE_DH_GM + ".2";
+    static let ID_PACE_DH_GM_AES_CBC_CMAC_192 = ID_PACE_DH_GM + ".3";
+    static let ID_PACE_DH_GM_AES_CBC_CMAC_256 = ID_PACE_DH_GM + ".4";
     
     static let ID_PACE_ECDH_GM = ID_PACE + ".2"
-    static let ID_PACE_ECDH_GM_3DES_CBC_CBC = ID_PACE_ECDH_GM + ".1"; // 0.4.0.127.0.7.2.2.4.2.1, id-PACE-ECDH-GM-3DES-CBC-CBC
-    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_128 = ID_PACE_ECDH_GM + ".2"; // 0.4.0.127.0.7.2.2.4.2.2, id-PACE-ECDH-GM-AES-CBC-CMAC-128
-    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_192 = ID_PACE_ECDH_GM + ".3"; // 0.4.0.127.0.7.2.2.4.2.3, id-PACE-ECDH-GM-AES-CBC-CMAC-192
-    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_256 = ID_PACE_ECDH_GM + ".4"; // 0.4.0.127.0.7.2.2.4.2.4, id-PACE-ECDH-GM-AES-CBC-CMAC-256
+    static let ID_PACE_ECDH_GM_3DES_CBC_CBC = ID_PACE_ECDH_GM + ".1";
+    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_128 = ID_PACE_ECDH_GM + ".2";
+    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_192 = ID_PACE_ECDH_GM + ".3";
+    static let ID_PACE_ECDH_GM_AES_CBC_CMAC_256 = ID_PACE_ECDH_GM + ".4";
     
     static let ID_PACE_DH_IM = ID_PACE + ".3"
-    static let ID_PACE_DH_IM_3DES_CBC_CBC = ID_PACE_DH_IM + ".1"; // 0.4.0.127.0.7.2.2.4.3.1, id-PACE-DH-IM-3DES-CBC-CBC
-    static let ID_PACE_DH_IM_AES_CBC_CMAC_128 = ID_PACE_DH_IM + ".2"; // 0.4.0.127.0.7.2.2.4.3.2, id-PACE-DH-IM-AES-CBC-CMAC-128
-    static let ID_PACE_DH_IM_AES_CBC_CMAC_192 = ID_PACE_DH_IM + ".3"; // 0.4.0.127.0.7.2.2.4.3.3, id-PACE-DH-IM-AES-CBC-CMAC-192
-    static let ID_PACE_DH_IM_AES_CBC_CMAC_256 = ID_PACE_DH_IM + ".4"; // 0.4.0.127.0.7.2.2.4.3.4, id-PACE-DH-IM-AES-CBC-CMAC-256
+    static let ID_PACE_DH_IM_3DES_CBC_CBC = ID_PACE_DH_IM + ".1";
+    static let ID_PACE_DH_IM_AES_CBC_CMAC_128 = ID_PACE_DH_IM + ".2";
+    static let ID_PACE_DH_IM_AES_CBC_CMAC_192 = ID_PACE_DH_IM + ".3";
+    static let ID_PACE_DH_IM_AES_CBC_CMAC_256 = ID_PACE_DH_IM + ".4";
     
     static let ID_PACE_ECDH_IM = ID_PACE + ".4"
-    static let ID_PACE_ECDH_IM_3DES_CBC_CBC = ID_PACE_ECDH_IM + ".1"; // 0.4.0.127.0.7.2.2.4.4.1, id-PACE-ECDH-IM-3DES-CBC-CBC
-    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_128 = ID_PACE_ECDH_IM + ".2"; // 0.4.0.127.0.7.2.2.4.4.2, id-PACE-ECDH-IM-AES-CBC-CMAC-128
-    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_192 = ID_PACE_ECDH_IM + ".3"; // 0.4.0.127.0.7.2.2.4.4.3, id-PACE-ECDH-IM-AES-CBC-CMAC-192
-    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_256 = ID_PACE_ECDH_IM + ".4"; // 0.4.0.127.0.7.2.2.4.4.4, id-PACE-ECDH-IM-AES-CBC-CMAC-256
+    static let ID_PACE_ECDH_IM_3DES_CBC_CBC = ID_PACE_ECDH_IM + ".1";
+    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_128 = ID_PACE_ECDH_IM + ".2";
+    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_192 = ID_PACE_ECDH_IM + ".3";
+    static let ID_PACE_ECDH_IM_AES_CBC_CMAC_256 = ID_PACE_ECDH_IM + ".4";
     
     static let ID_PACE_ECDH_CAM = ID_PACE + ".6"
-    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_128 = ID_PACE_ECDH_CAM + ".2"; // 0.4.0.127.0.7.2.2.4.6.2, id-PACE-ECDH-CAM-AES-CBC-CMAC-128
-    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_192 = ID_PACE_ECDH_CAM + ".3"; // 0.4.0.127.0.7.2.2.4.6.3, id-PACE-ECDH-CAM-AES-CBC-CMAC-192
-    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_256 = ID_PACE_ECDH_CAM + ".4"; // 0.4.0.127.0.7.2.2.4.6.4, id-PACE-ECDH-CAM-AES-CBC-CMAC-256
+    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_128 = ID_PACE_ECDH_CAM + ".2";
+    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_192 = ID_PACE_ECDH_CAM + ".3";
+    static let ID_PACE_ECDH_CAM_AES_CBC_CMAC_256 = ID_PACE_ECDH_CAM + ".4";
 
     public func getObjectIdentifier() -> String {
         preconditionFailure("This method must be overridden")

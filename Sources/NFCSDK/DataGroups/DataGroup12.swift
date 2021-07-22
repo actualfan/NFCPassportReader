@@ -30,7 +30,6 @@ public class DataGroup12 : DataGroup {
             throw NFCSDKError.InvalidResponse
         }
         
-        // Skip the taglist - ideally we would check this but...
         let _ = try getNextValue()
         
         repeat {
@@ -42,7 +41,6 @@ public class DataGroup12 : DataGroup {
             } else if tag == 0x5F26 {
                 dateOfIssue = String( bytes:val, encoding:.utf8)
             } else if tag == 0xA0 {
-                // Not yet handled
             } else if tag == 0x5F1B {
                 endorsementsOrObservations = String( bytes:val, encoding:.utf8)
             } else if tag == 0x5F1C {

@@ -49,21 +49,18 @@ public class NFCPassportModel {
     
     public private(set) lazy var passportMRZ : String = { return passportDataElements?["5F1F"] ?? "NOT FOUND" }()
     
-    // Extract fields from DG11 if present
     public private(set) lazy var placeOfBirth : String? = {
         guard let dg11 = dataGroupsRead[.DG11] as? DataGroup11,
               let placeOfBirth = dg11.placeOfBirth else { return nil }
         return placeOfBirth
     }()
     
-    /// residence address
     public private(set) lazy var residenceAddress : String? = {
         guard let dg11 = dataGroupsRead[.DG11] as? DataGroup11,
               let address = dg11.address else { return nil }
         return address
     }()
     
-    /// phone number
     public private(set) lazy var phoneNumber : String? = {
         guard let dg11 = dataGroupsRead[.DG11] as? DataGroup11,
               let telephone = dg11.telephone else { return nil }
@@ -78,7 +75,6 @@ public class NFCPassportModel {
         return certificateSigningGroups[.issuerSigningCertificate]
     }()
     
-    // Extract data from COM
     public private(set) lazy var LDSVersion : String = {
         guard let com = dataGroupsRead[.COM] as? COM else { return "Unknown" }
         return com.version
@@ -90,7 +86,6 @@ public class NFCPassportModel {
         return com.dataGroupsPresent
     }()
     
-    // Parsed datagroup hashes
     public private(set) var dataGroupsAvailable = [DataGroupId]()
     public private(set) var dataGroupsRead : [DataGroupId:DataGroup] = [:]
     public private(set) var dataGroupHashes = [DataGroupId: DataGroupHash]()
@@ -207,11 +202,6 @@ public class NFCPassportModel {
         return dataGroupsRead[id]
     }
 
-    /// Dumps the passport data
-    /// - Parameters:
-    ///    selectedDataGroups - the Data Groups to be exported (if they are present in the passport)
-    ///    includeActiveAutheticationData - Whether to include the Active Authentication challenge and response (if supported and retrieved)
-    /// - Returns: dictionary of DataGroup ids and Base64 encoded data
     public func dumpPassportData( selectedDataGroups : [DataGroupId], includeActiveAuthenticationData : Bool = false) -> [String:String] {
         var ret = [String:String]()
         for dg in selectedDataGroups {
@@ -249,18 +239,6 @@ public class NFCPassportModel {
     }
     
             
-    /// This method performs the passive authentication
-    /// Passive Authentication : Two Parts:
-    /// Part 1 - Has the SOD (Security Object Document) been signed by a valid country signing certificate authority (CSCA)?
-    /// Part 2 - has it been tampered with (e.g. hashes of Datagroups match those in the SOD?
-    ///        guard let sod = model.getDataGroup(.SOD) else { return }
-    ///
-    /// - Parameter masterListURL: the path to the masterlist to try to verify the document signing certiifcate in the SOD
-    /// - Parameter useCMSVerification: Should we use OpenSSL CMS verification to verify the SOD content
-    ///         is correctly signed by the document signing certificate OR should we do this manully based on RFC5652
-    ///         CMS fails under certain circumstances (e.g. hashes are SHA512 whereas content is signed with SHA256RSA).
-    ///         Currently defaulting to manual verification - hoping this will replace the CMS verification totally
-    ///         CMS Verification currently there just in case
     public func verifyPassport( masterListURL: URL?, useCMSVerification : Bool = false ) {
         if let masterListURL = masterListURL {
             do {
@@ -297,16 +275,16 @@ public class NFCPassportModel {
                 switch hashTypeByte {
                     case 0xBC, 0x33:
                         hashType = "SHA1"
-                        hashLength = 20  // 160 bits for SHA-1 -> 20 bytes
+                        hashLength = 20
                     case 0x34:
                         hashType = "SHA256"
-                        hashLength = 32  // 256 bits for SHA-256 -> 32 bytes
+                        hashLength = 32
                     case 0x35:
                         hashType = "SHA512"
-                        hashLength = 64  // 512 bits for SHA-512 -> 64 bytes
+                        hashLength = 64
                     case 0x36:
                         hashType = "SHA384"
-                        hashLength = 48  // 384 bits for SHA-384 -> 48 bytes
+                        hashLength = 48
                     default:
                         Log.error( "Error identifying Active Authentication RSA message digest hash algorithm" )
                         return
@@ -338,19 +316,13 @@ public class NFCPassportModel {
         }
     }
     
-    // Check if signing certificate is on the revocation list
-    // We do this by trying to build a trust chain of the passport certificate against the ones in the revocation list
-    // and if we are successful then its been revoked.
-    // NOTE - NOT USED YET AS NOT ABLE TO TEST
     func hasCertBeenRevoked( revocationListURL : URL ) -> Bool {
         var revoked = false
         do {
             try validateAndExtractSigningCertificates( masterListURL: revocationListURL )
             
-            // Certificate chain found - which means certificate is on revocation list
             revoked = true
         } catch {
-            // No chain found - certificate not revoked
         }
         
         return revoked
@@ -385,7 +357,6 @@ public class NFCPassportModel {
             throw PassiveAuthenticationError.SODMissing("No SOD found" )
         }
 
-        // Get SOD Content and verify that its correctly signed by the Document Signing Certificate
         var signedData : Data
         documentSigningCertificateVerified = false
         do {
@@ -399,8 +370,6 @@ public class NFCPassportModel {
             signedData = try sod.getEncapsulatedContent()
         }
                 
-        // Now Verify passport data by comparing compare Hashes in SOD against
-        // computed hashes to ensure data not been tampered with
         passportDataNotTampered = false
         let asn1Data = try OpenSSLUtils.ASN1Parse( data: signedData )
         let (sodHashAlgorythm, sodHashes) = try parseSODSignatureContent( asn1Data )
@@ -408,7 +377,6 @@ public class NFCPassportModel {
         var errors : String = ""
         for (id,dgVal) in dataGroupsRead {
             guard let sodHashVal = sodHashes[id] else {
-                // SOD and COM don't have hashes so these aren't errors
                 if id != .SOD && id != .COM {
                     errors += "DataGroup \(id) is missing!\n"
                 }
@@ -436,9 +404,6 @@ public class NFCPassportModel {
     }
     
     
-    /// Parses an text ASN1 structure, and extracts the Hash Algorythm and Hashes contained from the Octect strings
-    /// - Parameter content: the text ASN1 stucure format
-    /// - Returns: The Hash Algorythm used - either SHA1 or SHA256, and a dictionary of hashes for the datagroups (currently only DG1 and DG2 are handled)
     private func parseSODSignatureContent( _ content : String ) throws -> (String, [DataGroupId : String]){
         var currentDG = ""
         var sodHashAlgo = ""

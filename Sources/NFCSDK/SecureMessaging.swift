@@ -17,11 +17,6 @@ public enum SecureMessagingSupportedAlgorithms {
 import CoreNFC
 
 
-/// This class implements the secure messaging protocol.
-/// The class is a new layer that comes between the reader and the iso7816.
-/// It gives a new transmit method that takes an APDU object formed by the iso7816 layer,
-/// ciphers it following the doc9303 specification, sends the ciphered APDU to the reader
-/// layer and returns the unciphered APDU.
 @available(iOS 13, *)
 public class SecureMessaging {
     private var ksenc : [UInt8]
@@ -38,7 +33,6 @@ public class SecureMessaging {
         self.padLength = algoName == .DES ? 8 : 16
     }
 
-    /// Protect the apdu following the doc9303 specification
     func protect(apdu : NFCISO7816APDU ) throws -> NFCISO7816APDU {
     
         Log.verbose("\t\tSSC: " + binToHexRep(self.ssc))
@@ -103,7 +97,6 @@ public class SecureMessaging {
         return newAPDU
     }
 
-    /// Unprotect the APDU following the iso7816 specification
     func unprotect(rapdu : ResponseAPDU ) throws -> ResponseAPDU {
         var needCC = false
         var do87 : [UInt8] = []

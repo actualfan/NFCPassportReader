@@ -108,7 +108,6 @@ public func intToBin(_ data : Int, pad : Int = 2) -> [UInt8] {
     }
 }
 
-/// 'AABB' --> \xaa\xbb'"""
 public func hexRepToBin(_ val : String) -> [UInt8] {
     var output : [UInt8] = []
     var x = 0
@@ -159,7 +158,6 @@ public func unpad( _ tounpad : [UInt8]) -> [UInt8] {
     if tounpad[i] == 0x80 {
         return [UInt8](tounpad[0..<i])
     } else {
-        // no padding
         return tounpad
     }
 }
@@ -229,7 +227,6 @@ public func intToBytes( val: Int, removePadding:Bool) -> [UInt8] {
     var data = withUnsafeBytes(of: val.bigEndian, Array.init)
 
     if removePadding {
-        // Remove initial 0 bytes
         for i in 0 ..< data.count {
             if data[i] != 0 {
                 data = [UInt8](data[i...])
@@ -245,20 +242,12 @@ public func oidToBytes(oid : String, replaceTag : Bool) -> [UInt8] {
     var encOID = OpenSSLUtils.asn1EncodeOID(oid: oid)
     
     if replaceTag {
-        // Replace tag (0x06) with 0x80
         encOID[0] = 0x80
     }
     return encOID
 }
 
 
-
-/// Take an asn.1 length, and return a couple with the decoded length in hexa and the total length of the encoding (1,2 or 3 bytes)
-///
-/// @param data: A length value encoded in the asn.1 format.
-/// @type data: A binary string.
-/// @return: A tuple with the decoded hexa length and the length of the asn.1 encoded value.
-/// @raise asn1Exception: If the parameter does not follow the asn.1 notation.
 
 @available(iOS 13, macOS 10.15, *)
 public func asn1Length( _ data: ArraySlice<UInt8> ) throws -> (Int, Int) {
@@ -282,12 +271,6 @@ public func asn1Length(_ data : [UInt8]) throws -> (Int, Int)  {
     
 }
 
-/// Convert a length to asn.1 format
-/// @param data: The value to encode in asn.1
-/// @type data: An integer (hexa)
-/// @return: The asn.1 encoded value
-/// @rtype: A binary string
-/// @raise asn1Exception: If the parameter is too big, must be >= 0 and <= FFFF
 @available(iOS 13, macOS 10.15, *)
 public func toAsn1Length(_ data : Int) throws -> [UInt8] {
     if data < 0x80 {
@@ -304,12 +287,6 @@ public func toAsn1Length(_ data : Int) throws -> [UInt8] {
 }
         
 
-
-/// This function calculates a  Hash of the input data based on the input algorithm
-/// @param data: a byte array of data
-/// @param hashAlgorithm: the hash algorithm to be used - supported ones are SHA1, SHA224, SHA256, SHA384 and SHA512
-///        Currently specifying any others return empty array
-/// @return: A hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcHash( data: [UInt8], hashAlgorithm: String ) throws -> [UInt8] {
     var ret : [UInt8] = []
@@ -333,9 +310,6 @@ public func calcHash( data: [UInt8], hashAlgorithm: String ) throws -> [UInt8] {
 }
 
 
-/// This function calculates a SHA1 Hash of the input data
-/// @param data: a byte array of data
-/// @return: A SHA1 hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcSHA1Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)
@@ -349,9 +323,6 @@ public func calcSHA1Hash( _ data: [UInt8] ) -> [UInt8] {
     #endif
 }
 
-/// This function calculates a SHA224 Hash of the input data
-/// @param data: a byte array of data
-/// @return: A SHA224 hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcSHA224Hash( _ data: [UInt8] ) -> [UInt8] {
     
@@ -363,9 +334,6 @@ public func calcSHA224Hash( _ data: [UInt8] ) -> [UInt8] {
     return digest
 }
 
-/// This function calculates a SHA256 Hash of the input data
-/// @param data: a byte array of data
-/// @return: A SHA256 hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcSHA256Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)
@@ -379,9 +347,6 @@ public func calcSHA256Hash( _ data: [UInt8] ) -> [UInt8] {
     #endif
 }
 
-/// This function calculates a SHA512 Hash of the input data
-/// @param data: a byte array of data
-/// @return: A SHA512 hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcSHA512Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)
@@ -395,9 +360,6 @@ public func calcSHA512Hash( _ data: [UInt8] ) -> [UInt8] {
     #endif
 }
 
-/// This function calculates a SHA384 Hash of the input data
-/// @param data: a byte array of data
-/// @return: A SHA384 hash of the data
 @available(iOS 13, macOS 10.15, *)
 public func calcSHA384Hash( _ data: [UInt8] ) -> [UInt8] {
     #if canImport(CryptoKit)

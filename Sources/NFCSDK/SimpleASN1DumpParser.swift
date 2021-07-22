@@ -14,8 +14,8 @@ public class ASN1Item : CustomDebugStringConvertible {
     var depth : Int = -1
     var headerLen : Int = -1
     var length : Int = -1
-    var itemType : String = "" // Primative or Constructed (prim or cons)
-    var type : String = "" // Actual type of the value ( object, set, etc)
+    var itemType : String = ""
+    var type : String = ""
     var value : String = ""
     var line : String = ""
     var parent : ASN1Item? = nil
@@ -79,8 +79,6 @@ public class ASN1Item : CustomDebugStringConvertible {
     }
 }
 
-/// Very very basic ASN1 parser class - uses OpenSSL to dump an ASN1 structure to a string, and then parses that out into
-/// a tree based hieracy of ASN1Item structures - depth based
 @available(iOS 13, macOS 10.15, *)
 public class SimpleASN1DumpParser {
     public init() {

@@ -8,7 +8,6 @@
 
 import Foundation
 
-// MARK: TagError
 @available(iOS 13, macOS 10.15, *)
 public enum NFCSDKError: Error {
     case ResponseError(String, UInt8, UInt8)
@@ -76,7 +75,6 @@ extension NFCSDKError: LocalizedError {
 }
 
 
-// MARK: OpenSSLError
 @available(iOS 13, macOS 10.15, *)
 public enum OpenSSLError: Error {
     case UnableToGetX509CertificateFromPKCS7(String)
@@ -114,7 +112,6 @@ extension OpenSSLError: LocalizedError {
 }
 
 
-// MARK: PassiveAuthenticationError
 public enum PassiveAuthenticationError: Error {
     case UnableToParseSODHashes(String)
     case InvalidDataGroupHash(String)

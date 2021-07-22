@@ -161,7 +161,6 @@ class ChipAuthenticationHandler {
             self.tagReader?.sendMSEKAT(keyData: Data(wrappedKeyData), idData: Data(idData), completed: completed)
         } else if cipherAlg.hasPrefix("AES") {
             self.tagReader?.sendMSESetATIntAuth(oid: oid, keyId: keyId, completed: { [unowned self] response, error in
-                // Handle Error
                 if let error = error {
                     completed(nil, error)
                 } else {
@@ -233,11 +232,6 @@ class ChipAuthenticationHandler {
         throw NFCSDKError.InvalidDataPassed("Unsupported cipher algorithm or key length")
     }
     
-    /// Chunks up a byte array into a number of segments of the given size,
-    /// and a final segment if there is a remainder.
-    /// - Parameter segmentSize the number of bytes per segment
-    /// - Parameter data the data to be partitioned
-    /// - Parameter a list with the segments
     func chunk( data : [UInt8], segmentSize: Int ) -> [[UInt8]] {
         return stride(from: 0, to: data.count, by: segmentSize).map {
             Array(data[$0 ..< Swift.min($0 + segmentSize, data.count)])

@@ -30,12 +30,7 @@ public class DataGroup15 : DataGroup {
     
     override func parse(_ data: [UInt8]) throws {
         
-        // the public key can either be in EC (elliptic curve) or RSA format
-        // Try ec first and if this fails try RSA
-        // Note - this will be improved in a later version to read the ASN1 body to
-        // check the actual type
         if let key = try? OpenSSLUtils.readECPublicKey( data:body ) {
-            // NOTE We are responsible for freeing the key!
             ecdsaPublicKey = key
         } else if let key = try? OpenSSLUtils.readRSAPublicKey( data:body ) {
             

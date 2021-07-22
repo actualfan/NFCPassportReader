@@ -10,10 +10,6 @@ import Foundation
 import CommonCrypto
 
 
-/// Encrypts a message using AES/CBC/NOPADDING with a specified key and initialisation vector
-/// - Parameter key: Key use to encrypt
-/// - Parameter message: Message to encrypt
-/// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func AESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     
@@ -62,10 +58,6 @@ public func AESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     return []
 }
 
-/// Decrypts a message using AES/CBC/NOPADDING with a specified key and initialisation vector
-/// - Parameter key: Key use to decrypt
-/// - Parameter message: Message to decrypt
-/// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func AESDecrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     var fixedKey = key
@@ -115,10 +107,6 @@ public func AESDecrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     return []
 }
 
-/// Decrypts a message using AES/ECB/NOPADDING with a specified key and initialisation vector
-/// - Parameter key: Key use to decrypt
-/// - Parameter message: Message to decrypt
-/// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func AESECBEncrypt(key:[UInt8], message:[UInt8]) -> [UInt8] {
 
@@ -164,10 +152,6 @@ public func AESECBEncrypt(key:[UInt8], message:[UInt8]) -> [UInt8] {
     return []
 }
 
-/// Encrypts a message using DES3 with a specified key and initialisation vector
-/// - Parameter key: Key use to encrypt
-/// - Parameter message: Message to encrypt
-/// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func tripleDESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     var fixedKey = key
@@ -218,10 +202,6 @@ public func tripleDESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8
     return []
 }
 
-/// Decrypts a message using DES3 with a specified key and initialisation vector
-/// - Parameter key: Key use to decrypt
-/// - Parameter message: Message to decrypt
-/// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func tripleDESDecrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
     var fixedKey = key
@@ -272,11 +252,6 @@ public func tripleDESDecrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8
 }
 
 
-/// Encrypts a message using DES with a specified key and initialisation vector
-/// - Parameter key: Key use to encrypt
-/// - Parameter message: Message to encrypt
-/// - Parameter iv: Initialisation vector
-/// - Parameter options: Encryption options to use
 @available(iOS 13, macOS 10.15, *)
 public func DESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8], options:UInt32 = 0) -> [UInt8] {
     
@@ -323,11 +298,6 @@ public func DESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8], options:UInt32 
     return []
 }
 
-/// Decrypts a message using DES with a specified key and initialisation vector
-/// - Parameter key: Key use to decrypt
-/// - Parameter message: Message to decrypt
-/// - Parameter iv: Initialisation vector
-/// - Parameter options: Decryption options to use
 @available(iOS 13, macOS 10.15, *)
 public func DESDecrypt(key:[UInt8], message:[UInt8], iv:[UInt8], options:UInt32 = 0) -> [UInt8] {
     

@@ -46,7 +46,6 @@ public class DataGroup1 : DataGroup {
                 self.parseOther(body)
         }
         
-        // Store MRZ data
         elements["5F1F"] = String(bytes: body, encoding:.utf8)
     }
     

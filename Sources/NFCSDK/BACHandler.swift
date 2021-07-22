@@ -92,17 +92,6 @@ public class BACHandler {
         return (ksenc, ksmac)
     }
     
-    ///
-    /// Calculate the kseed from the kmrz:
-    /// - Calculate a SHA-1 hash of the kmrz
-    /// - Take the most significant 16 bytes to form the Kseed.
-    /// @param kmrz: The MRZ information
-    /// @type kmrz: a string
-    /// @return: a 16 bytes string
-    ///
-    /// - Parameter kmrz: mrz key
-    /// - Returns: first 16 bytes of the mrz SHA1 hash
-    ///
     func generateInitialKseed(kmrz : String ) -> [UInt8] {
         
         Log.verbose("Calculate the SHA-1 hash of MRZ_information")
@@ -119,17 +108,6 @@ public class BACHandler {
     }
     
     
-    /// Construct the command data for the mutual authentication.
-    /// - Request an 8 byte random number from the MRTD's chip (rnd.icc)
-    /// - Generate an 8 byte random (rnd.ifd) and a 16 byte random (kifd)
-    /// - Concatenate rnd.ifd, rnd.icc and kifd (s = rnd.ifd + rnd.icc + kifd)
-    /// - Encrypt it with TDES and the Kenc key (eifd = TDES(s, Kenc))
-    /// - Compute the MAC over eifd with TDES and the Kmax key (mifd = mac(pad(eifd))
-    /// - Construct the APDU data for the mutualAuthenticate command (cmd_data = eifd + mifd)
-    ///
-    /// @param rnd_icc: The challenge received from the ICC.
-    /// @type rnd_icc: A 8 bytes binary string
-    /// @return: The APDU binary data for the mutual authenticate command
     func authentication( rnd_icc : [UInt8]) -> [UInt8] {
         self.rnd_icc = rnd_icc
         
@@ -160,7 +138,6 @@ public class BACHandler {
 
         Log.verbose("Compute MAC over eifd with TDES key Kmac as calculated in-Appendix 5.2")
         Log.verbose("\tMifd: \(binToHexRep(mifd))")
-        // Construct APDU
         
         let cmd_data = eifd + mifd
         Log.verbose("Construct command data for MUTUAL AUTHENTICATE")
@@ -172,12 +149,6 @@ public class BACHandler {
         return cmd_data
     }
     
-    /// Calculate the session keys (KSenc, KSmac) and the SSC from the data
-    /// received by the mutual authenticate command.
-    
-    /// @param data: the data received from the mutual authenticate command send to the chip.
-    /// @type data: a binary string
-    /// @return: A set of two 16 bytes keys (KSenc, KSmac) and the SSC
     public func sessionKeys(data : [UInt8] ) throws -> ([UInt8], [UInt8], [UInt8])  {
         Log.verbose("Decrypt and verify received data and compare received RND.IFD with generated RND.IFD \(binToHexRep(self.ksmac))" )
         

@@ -90,7 +90,6 @@ public class PassportReader : NSObject {
 
 @available(iOS 13, *)
 extension PassportReader : NFCTagReaderSessionDelegate {
-    // MARK: - NFCTagReaderSessionDelegate
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
         Log.debug( "tagReaderSessionDidBecomeActive" )
     }
@@ -146,7 +145,6 @@ extension PassportReader : NFCTagReaderSessionDelegate {
         }
         
         
-        // Connect to tag
         Log.debug( "tagReaderSession:connecting to tag - \(tag)" )
         session.connect(to: tag) { [unowned self] (error: Error?) in
             if error != nil {
@@ -433,7 +431,6 @@ extension PassportReader {
                     self.tagReader?.reduceDataReadingAmount()
                     completed(nil)
                 } else {
-                    // Retry
                     if self.elementReadAttempts > 3 {
                         self.dataGroupsToRead.removeFirst()
                         self.elementReadAttempts = 0

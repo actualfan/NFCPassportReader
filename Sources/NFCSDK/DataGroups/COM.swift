@@ -23,9 +23,6 @@ public class COM : DataGroup {
             throw NFCSDKError.InvalidResponse
         }
         
-        // Version is 4 bytes (ascii) - AABB
-        // AA is major number, BB is minor number
-        // e.g.  48 49 48 55 -> 01 07 -> 1.7
         var versionBytes = try getNextValue()
         if versionBytes.count == 4 {
             let aa = Int( String(cString: Array(versionBytes[0..<2] + [0]) )) ?? -1

@@ -10,10 +10,8 @@ import Foundation
 public class DataGroup {
     public var datagroupType : DataGroupId = .Unknown
     
-    /// Body contains the actual data
     public private(set) var body : [UInt8] = []
     
-    /// Data contains the whole DataGroup data (as that is what the hash is calculated from
     public private(set) var data : [UInt8] = []
     
     var pos = 0
@@ -21,7 +19,6 @@ public class DataGroup {
     required init( _ data : [UInt8] ) throws {
         self.data = data
         
-        // Skip the first byte which is the header byte
         pos = 1
         let _ = try getNextLength()
         self.body = [UInt8](data[pos...])

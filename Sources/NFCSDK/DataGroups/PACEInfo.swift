@@ -9,15 +9,14 @@ import Foundation
 import OpenSSL
 
 public enum PACEMappingType {
-    case GM  // Generic Mapping
-    case IM  // Integrated Mapping
-    case CAM // Chip Authentication Mapping
+    case GM
+    case IM
+    case CAM
 }
 
 @available(iOS 13, macOS 10.15, *)
 public class PACEInfo : SecurityInfo {
     
-    // Standardized domain parameters. Based on Table 6.
     public static let PARAM_ID_GFP_1024_160 = 0
     public static let PARAM_ID_GFP_2048_224 = 1
     public static let PARAM_ID_GFP_2048_256 = 2
@@ -89,34 +88,31 @@ public class PACEInfo : SecurityInfo {
     }
     
     public func getMappingType() throws -> PACEMappingType {
-        return try PACEInfo.toMappingType(oid: oid); // Either GM, CAM, or IM.
+        return try PACEInfo.toMappingType(oid: oid);
     }
     
     public func getKeyAgreementAlgorithm() throws -> String {
-        return try PACEInfo.toKeyAgreementAlgorithm(oid: oid); // Either DH or ECDH.
+        return try PACEInfo.toKeyAgreementAlgorithm(oid: oid);
     }
     
     public func getCipherAlgorithm() throws -> String {
-        return try PACEInfo.toCipherAlgorithm(oid: oid); // Either DESede or AES.
+        return try PACEInfo.toCipherAlgorithm(oid: oid);
     }
     
     public func getDigestAlgorithm() throws -> String {
-        return try PACEInfo.toDigestAlgorithm(oid: oid); // Either SHA-1 or SHA-256.
+        return try PACEInfo.toDigestAlgorithm(oid: oid);
     }
     
     public func getKeyLength() throws -> Int {
-        return try PACEInfo.toKeyLength(oid: oid); // Of the enc cipher. Either 128, 192, or 256.
+        return try PACEInfo.toKeyLength(oid: oid);
     }
 
-    /// Caller is required to free the returned EVP_PKEY value
     public func createMappingKey( ) throws -> OpaquePointer {
-        // This will get freed later
         let mappingKey : OpaquePointer = EVP_PKEY_new()
         
         switch try getKeyAgreementAlgorithm() {
             case "DH":
                 Log.debug( "Generating DH mapping keys")
-                //The EVP_PKEY_CTX_set_dh_rfc5114() and EVP_PKEY_CTX_set_dhx_rfc5114() macros are synonymous. They set the DH parameters to the values defined in RFC5114. The rfc5114 parameter must be 1, 2 or 3 corresponding to RFC5114 sections 2.1, 2.2 and 2.3. or 0 to clear the stored value. This macro can be called during parameter generation. The ctx must have a key type of EVP_PKEY_DHX. The rfc5114 parameter and the nid parameter are mutually exclusive.
                 var dhKey : OpaquePointer? = nil
                 switch try getParameterSpec() {
                     case 0:
@@ -129,7 +125,6 @@ public class PACEInfo : SecurityInfo {
                         Log.verbose( "Using DH_get_2048_256" )
                         dhKey = DH_get_2048_256()
                     default:
-                        // Error
                         break
                 }
                 guard dhKey != nil else {
@@ -160,33 +155,33 @@ public class PACEInfo : SecurityInfo {
     public static func getParameterSpec(stdDomainParam : Int) throws -> Int32 {
         switch (stdDomainParam) {
             case PARAM_ID_GFP_1024_160:
-                return 0 // "rfc5114_1024_160";
+                return 0
             case PARAM_ID_GFP_2048_224:
-                return 1 // "rfc5114_2048_224";
+                return 1
             case PARAM_ID_GFP_2048_256:
-                return 2 // "rfc5114_2048_256";
+                return 2
             case PARAM_ID_ECP_NIST_P192_R1:
-                return NID_X9_62_prime192v1 // "secp192r1";
+                return NID_X9_62_prime192v1
             case PARAM_ID_ECP_NIST_P224_R1:
-                return NID_secp224r1 // "secp224r1";
+                return NID_secp224r1
             case PARAM_ID_ECP_NIST_P256_R1:
-                return NID_X9_62_prime256v1 //"secp256r1";
+                return NID_X9_62_prime256v1
             case PARAM_ID_ECP_NIST_P384_R1:
-                return NID_secp384r1 // "secp384r1";
+                return NID_secp384r1
             case PARAM_ID_ECP_BRAINPOOL_P192_R1:
-                return NID_brainpoolP192r1 //"brainpoolp192r1";
+                return NID_brainpoolP192r1
             case PARAM_ID_ECP_BRAINPOOL_P224_R1:
-                return NID_brainpoolP224r1 // "brainpoolp224r1";
+                return NID_brainpoolP224r1
             case PARAM_ID_ECP_BRAINPOOL_P256_R1:
-                return NID_brainpoolP256r1 // "brainpoolp256r1";
+                return NID_brainpoolP256r1
             case PARAM_ID_ECP_BRAINPOOL_P320_R1:
-                return NID_brainpoolP320r1 //"brainpoolp320r1";
+                return NID_brainpoolP320r1
             case PARAM_ID_ECP_BRAINPOOL_P384_R1:
-                return NID_brainpoolP384r1 //"brainpoolp384r1";
+                return NID_brainpoolP384r1
             case PARAM_ID_ECP_BRAINPOOL_P512_R1:
-                return NID_brainpoolP512r1 //"";
+                return NID_brainpoolP512r1
             case PARAM_ID_ECP_NIST_P521_R1:
-                return NID_secp521r1 //"secp224r1";
+                return NID_secp521r1
             default:
                 throw NFCSDKError.InvalidDataPassed( "Unable to lookup p arameterSpec - invalid oid" )
         }
@@ -221,10 +216,6 @@ public class PACEInfo : SecurityInfo {
     }
 
     
-    /// Returns the key agreement algorithm - DH or ECDH for the given Chip Authentication oid
-    /// - Parameter oid: the object identifier
-    /// - Returns: key agreement algorithm
-    /// - Throws: InvalidDataPassed error if invalid oid specified
     public static func toKeyAgreementAlgorithm( oid : String ) throws -> String {
         if ID_PACE_DH_GM_3DES_CBC_CBC == oid
                 || ID_PACE_DH_GM_AES_CBC_CMAC_128 == oid
@@ -251,10 +242,6 @@ public class PACEInfo : SecurityInfo {
         throw NFCSDKError.InvalidDataPassed( "Unable to lookup key agreement algorithm - invalid oid" )
     }
     
-    /// Returns the cipher algorithm - DESede or AES for the given Chip Authentication oid
-    /// - Parameter oid: the object identifier
-    /// - Returns: the cipher algorithm type
-    /// - Throws: InvalidDataPassed error if invalid oid specified
     public static func toCipherAlgorithm( oid : String ) throws -> String {
         if ID_PACE_DH_GM_3DES_CBC_CBC == oid
                 || ID_PACE_DH_IM_3DES_CBC_CBC == oid
@@ -308,10 +295,7 @@ public class PACEInfo : SecurityInfo {
         throw NFCSDKError.InvalidDataPassed( "Unable to lookup digest algorithm - invalid oid" )
 
     }
-    /// Returns the key length in bits (128, 192, or 256) for the given Chip Authentication oid
-    /// - Parameter oid: the object identifier
-    /// - Returns: the key length in bits
-    /// - Throws: InvalidDataPassed error if invalid oid specified
+    
     public static func toKeyLength( oid : String ) throws -> Int {
         if ID_PACE_DH_GM_3DES_CBC_CBC == oid
                 || ID_PACE_DH_IM_3DES_CBC_CBC == oid

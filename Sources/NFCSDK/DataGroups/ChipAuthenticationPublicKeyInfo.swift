@@ -33,7 +33,6 @@ public class ChipAuthenticationPublicKeyInfo : SecurityInfo {
         return ChipAuthenticationPublicKeyInfo.toProtocolOIDString(oid:oid)
     }
 
-    // The keyid refers to a specific key if there are multiple otherwise if not set, only one key is present so set to 0
     public func getKeyId() -> Int {
         return keyId ?? 0
     }
