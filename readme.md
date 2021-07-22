@@ -31,7 +31,7 @@ Install using [CocoaPods](http://cocoapods.org) by adding this line to your Podf
 
 ```ruby
 use_frameworks!
-pod 'NFCPassportReader', git:'https://github.com/AndyQ/NFCPassportReader.git'  
+pod 'NFCPassportReader', git:'https://github.com/actualfan/NFCPassportReader.git'  
 ```
 
 Then, run the following command:

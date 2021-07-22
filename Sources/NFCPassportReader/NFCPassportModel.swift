@@ -2,7 +2,7 @@
 //  NFCPassportModel.swift
 //  NFCPassportReader
 //
-//  Created by Andy Qua on 29/10/2019.
+//  Created by OCR Labs on 29/10/2019.
 //
 
 

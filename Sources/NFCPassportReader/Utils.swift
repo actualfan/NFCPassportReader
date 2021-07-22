@@ -2,8 +2,8 @@
 //  Utils.swift
 //  NFCTest
 //
-//  Created by Andy Qua on 09/06/2019.
-//  Copyright © 2019 Andy Qua. All rights reserved.
+//  Created by OCR Labs on 09/06/2019.
+//  Copyright © 2019 OCR Labs. All rights reserved.
 //
 
 import Foundation

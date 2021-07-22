@@ -2,8 +2,8 @@
 //  MRZEntryView.swift
 //  NFCPassportReaderApp
 //
-//  Created by Andy Qua on 10/02/2021.
-//  Copyright © 2021 Andy Qua. All rights reserved.
+//  Created by OCR Labs on 10/02/2021.
+//  Copyright © 2021 OCR Labs. All rights reserved.
 //
 
 import SwiftUI

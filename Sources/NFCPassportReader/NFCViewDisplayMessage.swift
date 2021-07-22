@@ -2,7 +2,7 @@
 //  NFCViewDisplayMessage.swift
 //  NFCPassportReader
 //
-//  Created by Andy Qua on 09/02/2021.
+//  Created by OCR Labs on 09/02/2021.
 //
 
 import Foundation

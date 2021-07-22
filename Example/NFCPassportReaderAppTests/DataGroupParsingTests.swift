@@ -2,7 +2,7 @@
 //  DataGroupParsingTests.swift
 //  
 //
-//  Created by Andy Qua on 15/06/2019.
+//  Created by OCR Labs on 15/06/2019.
 //
 
 import Foundation

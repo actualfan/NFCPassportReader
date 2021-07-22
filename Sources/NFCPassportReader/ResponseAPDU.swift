@@ -2,8 +2,8 @@
 //  ResponseAPDU.swift
 //  NFCPassportReader
 //
-//  Created by Andy Qua on 09/02/2021.
-//  Copyright © 2021 Andy Qua. All rights reserved.
+//  Created by OCR Labs on 09/02/2021.
+//  Copyright © 2021 OCR Labs. All rights reserved.
 //
 
 #if !os(macOS)

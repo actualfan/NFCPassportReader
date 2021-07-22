@@ -2,7 +2,7 @@
 //  SimpleASN1Parser.swift
 //  NFCPassportReader
 //
-//  Created by Andy Qua on 25/01/2021.
+//  Created by OCR Labs on 25/01/2021.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  PaceInfo.swift
 //  NFCPassportReader
 //
-//  Created by Andy Qua on 03/03/2021.
+//  Created by OCR Labs on 03/03/2021.
 //
 
 import Foundation

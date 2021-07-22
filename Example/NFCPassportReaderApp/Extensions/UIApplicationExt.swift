@@ -2,8 +2,8 @@
 //  UIApplicationExt.swift
 //  NFCPassportReaderApp
 //
-//  Created by Andy Qua on 20/01/2021.
-//  Copyright © 2021 Andy Qua. All rights reserved.
+//  Created by OCR Labs on 20/01/2021.
+//  Copyright © 2021 OCR Labs. All rights reserved.
 //
 
 import UIKit

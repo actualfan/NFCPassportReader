@@ -1,7 +1,7 @@
 //
 //  DataGroupParser.swift
 //
-//  Created by Andy Qua on 14/06/2019.
+//  Created by OCR Labs on 14/06/2019.
 //
 
 import OpenSSL
