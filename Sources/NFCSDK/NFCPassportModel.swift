@@ -113,7 +113,6 @@ public class NFCPassportModel {
             if cardAccess?.paceInfo != nil {
                 return true
             } else {
-                // We may not have stored the cardAccess so check the DG14
                 if let dg14 = dataGroupsRead[.DG14] as? DataGroup14,
                    (dg14.securityInfos.filter { ($0 as? PACEInfo) != nil }).count > 0 {
                     return true
@@ -192,7 +191,6 @@ public class NFCPassportModel {
             }
         }
 
-        // See if we have Active Auth info in the dump
         if let challenge = AAChallenge, let signature = AASignature {
             verifyActiveAuthentication(challenge: challenge, signature: signature)
         }
@@ -283,20 +281,12 @@ public class NFCPassportModel {
         self.activeAuthenticationChallenge = challenge
         self.activeAuthenticationSignature = signature
         
-        // Get AA Public key
         self.activeAuthenticationPassed = false
         guard  let dg15 = self.dataGroupsRead[.DG15] as? DataGroup15 else { return }
         if let rsaKey = dg15.rsaPublicKey {
             do {
                 var decryptedSig = try OpenSSLUtils.decryptRSASignature(signature: Data(signature), pubKey: rsaKey)
                 
-                // Decrypted signature compromises of header (6A), Message, Digest hash, Trailer
-                // Trailer can be 1 byte (BC - SHA-1 hash) or 2 bytes (xxCC) - where xx identifies the hash algorithm used
-                
-                // if the last byte of the digest is 0xBC, then this uses dedicated hash function 3 (SHA-1),
-                // If the last byte is 0xCC, then the preceding byte tells you which hash function
-                // should be used (currently not yet implemented!)
-                // See ISO/IEC9796-2 for details on the verification and ISO/IEC 10118-3 for the dedicated hash functions!
                 var hashTypeByte = decryptedSig.popLast() ?? 0x00
                 if hashTypeByte == 0xCC {
                     hashTypeByte = decryptedSig.popLast() ?? 0x00
@@ -325,13 +315,10 @@ public class NFCPassportModel {
                 let message = [UInt8](decryptedSig[1 ..< (decryptedSig.count-hashLength)])
                 let digest = [UInt8](decryptedSig[(decryptedSig.count-hashLength)...])
 
-                // Concatenate the challenge to the end of the message
                 let fullMsg = message + challenge
                 
-                // Then generate the hash
                 let msgHash : [UInt8] = try calcHash(data: fullMsg, hashAlgorithm: hashType)
                 
-                // Check hashes match
                 if msgHash == digest {
                     self.activeAuthenticationPassed = true
                     Log.info( "Active Authentication (RSA) successful" )

@@ -1,6 +1,6 @@
 //
 //  Utils.swift
-//  NFCTest
+//  NFCSDK
 //
 //  Created by OCR Labs on 09/06/2019.
 //  Copyright © 2019 OCR Labs. All rights reserved.
@@ -254,16 +254,6 @@ public func oidToBytes(oid : String, replaceTag : Bool) -> [UInt8] {
 
 
 /// Take an asn.1 length, and return a couple with the decoded length in hexa and the total length of the encoding (1,2 or 3 bytes)
-///
-/// Using Basic Encoding Rules (BER):
-/// If the first byte is <= 0x7F (0-127), then this is the total length of the data
-/// If the first byte is 0x81 then the length is the value of the next byte
-/// If the first byte is 0x82 then the length is the value of the next two bytes
-/// If the first byte is 0x80 then the length is indefinite (never seen this and not sure exactle what it means)
-/// e.g.
-/// if the data was 0x02, 0x11, 0x12, then the amount of data we have to read is two bytes, and the actual data is [0x11, 0x12]
-/// If the length was 0x81,0x80,....... then we know that the data length is contained in the next byte - 0x80 (128), so the amount of data to read is 128 bytes
-/// If the length was 0x82,0x01,0x01,....... then we know that the data length is contained in the next 2 bytes - 0x01, 0x01 (257) so the amount of data to read is 257 bytes
 ///
 /// @param data: A length value encoded in the asn.1 format.
 /// @type data: A binary string.

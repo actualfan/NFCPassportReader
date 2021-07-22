@@ -1,6 +1,6 @@
 //
 //  3DES_DESEncryption.swift
-//  NFCTest
+//  NFCSDK
 //
 //  Created by OCR Labs on 07/06/2019.
 //  Copyright © 2019 OCR Labs. All rights reserved.
@@ -170,7 +170,6 @@ public func AESECBEncrypt(key:[UInt8], message:[UInt8]) -> [UInt8] {
 /// - Parameter iv: Initialisation vector
 @available(iOS 13, macOS 10.15, *)
 public func tripleDESEncrypt(key:[UInt8], message:[UInt8], iv:[UInt8]) -> [UInt8] {
-    // Fix key data - if length is 16 then take the first 98 bytes and append them to the end to make 24 bytes
     var fixedKey = key
     if key.count == 16 {
         fixedKey += key[0..<8]

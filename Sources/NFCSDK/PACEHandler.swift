@@ -131,19 +131,6 @@ public class PACEHandler {
         Log.error( "   OpenSSLError: \(OpenSSLUtils.getOpenSSLError())" )
         self.paceError = "\(stage) - \(error)"
         self.completedHandler?( false )
-
-/*
-        if needToTerminateGA {
-            // This is to fix some passports that don't automatically terminate command chaining!
-            // No idea if this is the correct way to do it but testing.....
-            let terminateGA = wrapDO(b:0x83, arr:[0x00])
-            tagReader.sendGeneralAuthenticate(data:terminateGA, isLast:true, completed: { [weak self] response, error in
-                self?.completedHandler?( false )
-            })
-        } else {
-            self.completedHandler?( false )
-        }
-*/
     }
     
     /// Performs PACE Step 1- receives an encrypted nonce from the passport and decypts it with the  PACE key - derived from MRZ, CAN (not yet supported)
@@ -387,15 +374,6 @@ public class PACEHandler {
             
             Log.debug( "Auth token from passport matches expected token!" )
             
-            // This will be added for CAM when supported
-            // var encryptedChipAuthenticationData : [UInt8]? = nil
-            // if (sself.mappingType == PACEMappingType.CAM) {
-            //    if tvlResp[1].tag != 0x8A {
-            //        Log.warning("CAM: Was expecting tag 0x86, found: \(binToHex(UInt8(tvlResp[1].tag)))")
-            //    }
-            //    encryptedChipAuthenticationData = [UInt8](tvlResp[1].value)
-            // }
-            
             // We're done!
             sself.paceCompleted( ksEnc: encKey, ksMac: macKey )
         })
@@ -531,28 +509,22 @@ extension PACEHandler {
             throw PACEHandlerError.ECDHKeyAgreementError( "Unable to get order or cofactor from group" )
         }
         
-        // Create the shared secret in the form of a ECPoint
-
-        // Ideally I'd use OpenSSLUtls.computeSharedSecret for this but for reasons as yet unknown, it only returns the first 32 bytes
-        // NOT the full 64 bytes (would then convert to 65 with e header of 4 for uncompressed)
         guard let sharedSecretMappingPoint = self.computeECDHMappingKeyPoint(privateKey: mappingKey, inputKey: passportPublicKeyData) else {
             // Error
             throw PACEHandlerError.ECDHKeyAgreementError( "Failed to compute new shared secret mapping point from mapping key and passport public mapping key" )
         }
         defer { EC_POINT_free( sharedSecretMappingPoint ) }
 
-        // Map the nonce using Generic mapping to get the new parameters (inc a new generator)
+        
         guard let newGenerater = EC_POINT_new(group) else {
             throw PACEHandlerError.ECDHKeyAgreementError( "Unable to create new mapping generator point" )
         }
         defer{ EC_POINT_free(newGenerater) }
         
-        // g = (generator * nonce) + (sharedSecretMappingPoint * 1)
         guard EC_POINT_mul(group, newGenerater, nonce, sharedSecretMappingPoint, BN_value_one(), nil) == 1 else {
             throw PACEHandlerError.ECDHKeyAgreementError( "Failed to map nonce to get new generator params" )
         }
         
-        // Initialize ephemeral parameters with parameters from the mapping key
         guard let ephemeralParams = EVP_PKEY_new() else {
             throw PACEHandlerError.ECDHKeyAgreementError( "Unable to create ephemeral params" )
         }
@@ -560,7 +532,6 @@ extension PACEHandler {
         let ephemeral_key = EC_KEY_dup(ec_mapping_key)
         defer{ EC_KEY_free(ephemeral_key) }
         
-        // configure the new EC_KEY
         guard EVP_PKEY_set1_EC_KEY(ephemeralParams, ephemeral_key) == 1,
               EC_GROUP_set_generator(group, newGenerater, order, cofactor) == 1,
               EC_GROUP_check(group, nil) == 1,
@@ -583,7 +554,6 @@ extension PACEHandler {
         var encodedPublicKeyData = try encodePublicKey(oid:self.paceOID, key:publicKey)
         
         if cipherAlg == "DESede" {
-            // If DESede (3DES), we need to pad the data
             encodedPublicKeyData = pad(encodedPublicKeyData, blockSize: 8)
         }
         
@@ -593,7 +563,6 @@ extension PACEHandler {
 
         let maccedPublicKeyDataObject = mac(algoName: cipherAlg == "DESede" ? .DES : .AES, key: macKey, msg: encodedPublicKeyData)
 
-        // Take 8 bytes for auth token
         let authToken = [UInt8](maccedPublicKeyDataObject[0..<8])
         Log.verbose( "Generated authToken = \(binToHexRep(authToken, asArray: true))" )
         return authToken
@@ -654,16 +623,13 @@ extension PACEHandler {
 
         let privateECKey = EC_KEY_get0_private_key(ecdh) // BIGNUM
 
-        // decode public key
         guard let group = EC_KEY_get0_group(ecdh) else{ return nil }
         guard let ecp = EC_POINT_new(group) else { return nil }
         defer { EC_POINT_free(ecp) }
         guard EC_POINT_oct2point(group, ecp, inputKey, inputKey.count,nil) != 0 else { return nil }
                 
-        // create our output point
         let output = EC_POINT_new(group)
 
-        // Multiply our private key with the passports public key to get a new point
         EC_POINT_mul(group, output, nil, ecp, privateECKey, nil)
         
         return output

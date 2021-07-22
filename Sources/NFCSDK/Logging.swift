@@ -1,6 +1,6 @@
 //
 //  Logging.swift
-//  NFCTest
+//  NFCSDK
 //
 //  Created by OCR Labs on 11/06/2019.
 //  Copyright © 2019 OCR Labs. All rights reserved.
@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO: Quick log functions - will move this to something better
 public enum LogLevel : Int, CaseIterable {
     case verbose = 0
     case debug = 1

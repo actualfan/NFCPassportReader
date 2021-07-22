@@ -72,17 +72,14 @@ class SecureMessagingSessionKeyGenerator {
         
         var keyBytes : [UInt8]
         if cipherAlgName == "DESede" || cipherAlgName == "3DES" {
-            // TR-SAC 1.01, 4.2.1.
             switch(keyLength) {
                 case 112, 128:
-                    // Copy E (Octects 1 to 8), D (Octects 9 to 16), E (again Octects 1 to 8), 112-bit 3DES key
                     keyBytes = [UInt8](hashResult[0..<16] + hashResult[0..<8])
                     break;
                 default:
                     throw NFCSDKError.InvalidDataPassed("Can only use DESede with 128-but key length")
             }
         } else if cipherAlgName.lowercased() == "aes" || cipherAlgName.lowercased().hasPrefix("aes") {
-            // TR-SAC 1.01, 4.2.2.
             switch(keyLength) {
                 case 128:
                     keyBytes = [UInt8](hashResult[0..<16]) // NOTE: 128 = 16 * 8
@@ -117,8 +114,6 @@ class SecureMessagingSessionKeyGenerator {
         throw NFCSDKError.InvalidDataPassed("Unsupported cipher algorithm or key length")
     }
     
-    /// This generates a SHA-X hash based on the passed in algo.
-    /// There must be a more generic way to do this?
     func  getHash(algo: String, dataElements:[Data] ) throws -> [UInt8] {
         var hash : [UInt8]
         

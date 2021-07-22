@@ -1,6 +1,6 @@
 //
 //  PassportReader.swift
-//  NFCTest
+//  NFCSDK
 //
 //  Created by OCR Labs on 11/06/2019.
 //  Copyright © 2019 OCR Labs. All rights reserved.
@@ -35,8 +35,6 @@ public class PassportReader : NSObject {
     private var masterListURL : URL?
     private var shouldNotReportNextReaderSessionInvalidationErrorUserCanceled : Bool = false
 
-    // By default, Passive Authentication uses the new RFS5652 method to verify the SOD, but can be switched to use
-    // the previous OpenSSL CMS verification if necessary
     public var passiveAuthenticationUsesOpenSSL : Bool = false
 
     public init( logLevel: LogLevel = .info, masterListURL: URL? = nil ) {
@@ -50,10 +48,6 @@ public class PassportReader : NSObject {
         self.masterListURL = masterListURL
     }
     
-    // This function allows you to override the amount of data the TagReader tries to read from the NFC
-    // chip. NOTE - this really shouldn't be used for production but is useful for testing as different
-    // passports support different data amounts.
-    // It appears that the most reliable is 0xA0 (160 chars) but some will support arbitary reads (0xFF or 256)
     public func overrideNFCDataAmountToRead( amount: Int ) {
         dataAmountToReadOverride = amount
     }
@@ -73,13 +67,10 @@ public class PassportReader : NSObject {
         self.caHandler = nil
         self.paceHandler = nil
         
-        // If no tags specified, read all
         if self.dataGroupsToRead.count == 0 {
-            // Start off with .COM, will always read (and .SOD but we'll add that after), and then add the others from the COM
             self.dataGroupsToRead.append(contentsOf:[.COM, .SOD] )
             self.readAllDatagroups = true
         } else {
-            // We are reading specific datagroups
             self.readAllDatagroups = false
         }
         
@@ -101,14 +92,10 @@ public class PassportReader : NSObject {
 extension PassportReader : NFCTagReaderSessionDelegate {
     // MARK: - NFCTagReaderSessionDelegate
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
-        // If necessary, you may perform additional operations on session start.
-        // At this point RF polling is enabled.
         Log.debug( "tagReaderSessionDidBecomeActive" )
     }
     
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        // If necessary, you may handle the error. Note session is no longer valid.
-        // You must create a new session to restart RF polling.
         Log.debug( "tagReaderSession:didInvalidateWithError - \(error.localizedDescription)" )
         self.readerSession = nil
 
@@ -201,7 +188,6 @@ extension PassportReader : NFCTagReaderSessionDelegate {
 extension PassportReader {
     
     func startReading() {
-        // Before we start the main work, lets try reading the EF.CardAccess
         tagReader?.readCardAccess(completed: { [unowned self] data, error in
             var ca : CardAccess?
             if let data = data {
@@ -213,7 +199,6 @@ extension PassportReader {
                 }
             }
             
-            // If we managed to read the CardAccess the PACE should be supported otherwise drop back to BAC
             if let cardAccess = ca {
                 passport.cardAccess = cardAccess
                 self.doPACEAuthentication( cardAccess: cardAccess)
@@ -231,8 +216,6 @@ extension PassportReader {
                 Log.info( "PACE Successful" )
                 self?.passport.PACEStatus = .success
 
-                // At this point, BAC Has been done and the TagReader has been set up with the SecureMessaging
-                // session keys
                 self?.tagReader?.selectPassportApplication(completed: { response, error in
                     
                     self?.startReadingDataGroups()
@@ -244,8 +227,6 @@ extension PassportReader {
                 self?.tagReader?.selectPassportApplication(completed: { response, error in
                     self?.doBACAuthentication()
                 })
-//                let displayMessage = NFCViewDisplayMessage.error(error)
-//                self?.invalidateSession(errorMessage: displayMessage, error: error)
             }
         })
     }
@@ -253,7 +234,6 @@ extension PassportReader {
     func doBACAuthentication() {
         elementReadAttempts = 0
         self.currentlyReadingDataGroup = nil
-        // Set PACE and Chip authentication to be unsuccessful - either we haven't done it yet or we have done it but it failed for some reason
         if passport.PACEStatus != .notDone {
             passport.PACEStatus = .failed
         }
@@ -264,8 +244,6 @@ extension PassportReader {
             if error == nil {
                 Log.info( "BAC Successful" )
                 self?.passport.BACStatus = .success
-                // At this point, BAC Has been done and the TagReader has been set up with the SecureMessaging
-                // session keys
                 self?.startReadingDataGroups()
             } else if let error = error {
                 Log.info( "BAC Failed" )
@@ -279,8 +257,6 @@ extension PassportReader {
     func startReadingDataGroups() {
         self.readNextDataGroup( ) { [weak self] error in
             if self?.dataGroupsToRead.count != 0 {
-                // OK we've got more datagroups to go - we've probably failed security verification
-                // So lets re-establish BAC and try again
                 DispatchQueue.global().async {
                     self?.doBACAuthentication()
                 }
@@ -290,15 +266,10 @@ extension PassportReader {
                 } else {
                     self?.updateReaderSessionMessage(alertMessage: NFCViewDisplayMessage.successfulRead)
                     
-                    // Before we finish, check if we should do active authentication
                     self?.doActiveAuthenticationIfNeccessary() { [weak self] in
-                        // We succesfully read the passport, now we're about to invalidate the session. Before
-                        // doing so, we want to be sure that the 'user cancelled' error that we're causing by
-                        // calling 'invalidate' will not be reported back to the user
                         self?.shouldNotReportNextReaderSessionInvalidationErrorUserCanceled = true
                         self?.readerSession?.invalidate()
                         
-                        // If we have a masterlist url set then use that and verify the passport now
                         self?.passport.verifyPassport(masterListURL: self?.masterListURL, useCMSVerification: self?.passiveAuthenticationUsesOpenSSL ?? false)
                         self?.scanCompletedHandler( self?.passport, nil )
                     }
@@ -309,8 +280,6 @@ extension PassportReader {
     }
     
     func invalidateSession(errorMessage: NFCViewDisplayMessage, error: NFCSDKError) {
-        // Mark the next 'invalid session' error as not reportable (we're about to cause it by invalidating the
-        // session). The real error is reported back with the call to the completed handler
         self.shouldNotReportNextReaderSessionInvalidationErrorUserCanceled = true
         self.readerSession?.invalidate(errorMessage: self.nfcViewDisplayMessageHandler?(errorMessage) ?? errorMessage.description)
         self.scanCompletedHandler(nil, error)
@@ -408,11 +377,9 @@ extension PassportReader {
                         if self.readAllDatagroups == true {
                             self.dataGroupsToRead = foundDGs
                         } else {
-                            // We are reading specific datagroups but remove all the ones we've requested to be read that aren't actually available
                             self.dataGroupsToRead = foundDGs.filter { dataGroupsToRead.contains($0) }
                         }
                         
-                        // If we are skipping secure elements then remove .DG3 and .DG4
                         if self.skipSecureElements {
                             self.dataGroupsToRead = self.dataGroupsToRead.filter { $0 != .DG3 && $0 != .DG4 }
                         }
@@ -421,7 +388,6 @@ extension PassportReader {
                         
                         if caHandler?.isChipAuthenticationSupported ?? false {
                             
-                            // Do Chip authentication and then continue reading datagroups
                             readNextDG = false
                             self.caHandler?.doChipAuthentication() { [unowned self] (success) in
                                 self.passport.chipAuthenticationStatus = .success
@@ -437,7 +403,6 @@ extension PassportReader {
                     Log.error( "Unexpected error reading tag - \(error)" )
                 }
 
-                // Remove it and read the next tag
                 self.dataGroupsToRead.removeFirst()
                 self.elementReadAttempts = 0
                 if readNextDG {
@@ -445,34 +410,26 @@ extension PassportReader {
                 }
                 
             } else {
-                
-                // OK we had an error - depending on what happened, we may want to try to re-read this
-                // E.g. we failed to read the last Datagroup because its protected and we can't
                 let errMsg = err?.value ?? "Unknown  error"
                 Log.error( "ERROR - \(errMsg)" )
                 if errMsg == "Session invalidated" || errMsg == "Class not supported" || errMsg == "Tag connection lost" || errMsg == "sw1 - 0x6A, sw2 - 0x82" {
                     if self.elementReadAttempts < 3 {
                         self.readNextDataGroup(completedReadingGroups: completed)
                     } else {
-                        // Check if we have done Chip Authentication, if so, set it to nil and try to redo BAC
                         if self.caHandler != nil {
                             self.caHandler = nil
                             completed(nil)
                         } else {
-                            // Can't go any more!
                             self.dataGroupsToRead.removeAll()
                             completed( err )
                         }
                     }
                 } else if errMsg == "Security status not satisfied" || errMsg == "File not found" {
-                    // Can't read this element as we aren't allowed - remove it and return out so we re-do BAC
                     self.dataGroupsToRead.removeFirst()
                     completed(nil)
                 } else if errMsg == "SM data objects incorrect" || errMsg == "Class not supported" {
-                    // Can't read this element security objects now invalid - and return out so we re-do BAC
                     completed(nil)
-                } else if errMsg.hasPrefix( "Wrong length" ) || errMsg.hasPrefix( "End of file" ) {  // Should now handle errors 0x6C xx, and 0x67 0x00
-                    // OK passport can't handle max length so drop it down
+                } else if errMsg.hasPrefix( "Wrong length" ) || errMsg.hasPrefix( "End of file" ) {
                     self.tagReader?.reduceDataReadingAmount()
                     completed(nil)
                 } else {

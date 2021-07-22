@@ -1,6 +1,6 @@
 //
 //  BACHandler.swift
-//  NFCTest
+//  NFCSDK
 //
 //  Created by OCR Labs on 07/06/2019.
 //  Copyright © 2019 OCR Labs. All rights reserved.
@@ -25,10 +25,6 @@ public class BACHandler {
     
     var tagReader : TagReader?
     
-    public init() {
-        // For testing only
-    }
-    
     public init(tagReader: TagReader) {
         self.tagReader = tagReader
     }
@@ -49,10 +45,8 @@ public class BACHandler {
 
         }
         
-        // Make sure we clear secure messaging (could happen if we read an invalid DG or we hit a secure error
         tagReader.secureMessaging = nil
         
-        // get Challenge
         Log.debug( "BACHandler - Getting initial challenge" )
         tagReader.getChallenge() { [unowned self] (response, error) in
             
@@ -198,9 +192,6 @@ public class BACHandler {
         let KSenc = try smskg.deriveKey(keySeed: Kseed, mode: .ENC_MODE)
         let KSmac = try smskg.deriveKey(keySeed: Kseed, mode: .MAC_MODE)
 
-//        let KSenc = self.keyDerivation(kseed: Kseed,c: KENC)
-//        let KSmac = self.keyDerivation(kseed: Kseed,c: KMAC)
-        
         Log.verbose("Calculate Session Keys (KSenc and KSmac) using Appendix 5.1")
         Log.verbose("\tKSenc: \(binToHexRep(KSenc))" )
         Log.verbose("\tKSmac: \(binToHexRep(KSmac))" )
