@@ -1,4 +1,4 @@
-# NFCPassportReader
+# NFCSDK
 
 This package handles reading an NFC Enabled passport using iOS 13 CoreNFC APIS
 
@@ -22,7 +22,7 @@ It reads and verifies my passport (and others I've been able to test) fine, howe
 ## Installation
 ### Swift Package Manager
 
-NFCPassportReader may be installed via Swift Package Manager, by pointing to this repo's URL.
+NFCSDK may be installed via Swift Package Manager, by pointing to this repo's URL.
 
 
 ### CocoaPods
@@ -31,7 +31,7 @@ Install using [CocoaPods](http://cocoapods.org) by adding this line to your Podf
 
 ```ruby
 use_frameworks!
-pod 'NFCPassportReader', git:'https://github.com/actualfan/NFCPassportReader.git'  
+pod 'NFCSDK', git:'https://github.com/actualfan/NFCSDK.git'  
 ```
 
 Then, run the following command:

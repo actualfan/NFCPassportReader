@@ -39,7 +39,7 @@ python extract.py [Country master list.ml|ICAO LDIF file]
 
 It will run through the masterlist(s) contained within the file and you should end up with a new masterList.pem file which is a concatenation of all the unique certificates.
 
-This can then be imported into the NFCPassportReader app and used to verify an e-passport using Passive Authentication.
+This can then be imported into the NFCSDK app and used to verify an e-passport using Passive Authentication.
 
 ## Credits
 This script is pretty much based on the details from http://wiki.yobi.be/wiki/EPassport with some additional bits for de-duplicating certificates. 
